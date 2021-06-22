@@ -1,20 +1,22 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class Main extends JFrame {
+public class Main extends JFrame
+{
     public Main()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        final int width = (int)screenSize.getWidth();
-        final int height = (int)screenSize.getHeight();
-        setTitle("Snake");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        int width = screenSize.width;
+        int height = screenSize.height;
+        setTitle("snake");
+        setDefaultCloseOperation(3);//EXIT_ON_CLOSE == 3
         setSize(width, height);
         add(new Field(width, height));
         setVisible(true);
+        setResizable(false);
     }
-    public static void main(String[] arg)
+    public static void main(String[] args)
     {
-        Main main = new Main();
+        Main mw = new Main();
     }
 }
