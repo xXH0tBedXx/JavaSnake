@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.Random;
 
 public class Field extends JPanel implements ActionListener {
@@ -14,11 +11,11 @@ public class Field extends JPanel implements ActionListener {
     private final int pixel_size = 64;//Размер одной ячейки игрового поля
     private Image Snake_dot;//Изображение змейки
     private Image Apple;//изображение яблока
-    private Image Head;
+    private Image Head;//избражение головы змейки
     private int AppleX;//
     private int AppleY;// Текущие координаты яблока
-    private int[] snakeX; //
-    private int[] snakeY; //массивы координат каждого отсека змейки
+    private final int[] snakeX; //
+    private final int[] snakeY; //массивы координат каждого отсека змейки
     private int snakeSize = new Random().nextInt(4);//количество ячеек змейки
     private Timer timer;
     private boolean UP = false;     //
@@ -28,8 +25,8 @@ public class Field extends JPanel implements ActionListener {
     private boolean IN_GAME = true;    //состояние игры (в игре/вне игры)
 
     public Field(int width, int height) {
-        this.width = width;
-        this.height = height;
+        Field.width = width;
+        Field.height = height;
         size = width * height;
         count_pixels = size / pixel_size;
         snakeX = new int[count_pixels - 1];
@@ -38,6 +35,7 @@ public class Field extends JPanel implements ActionListener {
         loadImages();
         initGame();
         addKeyListener(new KeyListener());
+        addMouseListener(new MouseListener());
         setFocusable(true);
     }
 
@@ -56,6 +54,11 @@ public class Field extends JPanel implements ActionListener {
     public void createApple() {
         AppleX = new Random().nextInt((width / pixel_size) - 2) * pixel_size;
         AppleY = new Random().nextInt((height / pixel_size) - 2) * pixel_size; //В некоторых разрешениях на 64 нацело не делиться, поэтому последние два варианта (первый - это граница, второй - это половина картинки) я убрал
+        for (int i = 0; i < snakeSize; i++)
+        {
+            if (AppleX == snakeX[i] && AppleY == snakeY[i])
+                createApple();
+        }
     }
 
     public void loadImages() {
@@ -82,8 +85,9 @@ public class Field extends JPanel implements ActionListener {
         else
         {
             setBackground(Color.BLACK);
+            g.setFont(new Font("Comic Sans", 1, width/35));
             g.setColor(Color.WHITE);
-            g.drawString("DIED FROM CRINGE" , width/2, height/2);
+            g.drawString("DIED FROM CRINGE" , width/3, height/2);
         }
     }
 
@@ -130,31 +134,66 @@ public class Field extends JPanel implements ActionListener {
         }
         repaint();
     }
+
+    class MouseListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            int x = e.getX();
+            int y = e.getY();
+            if (y < height/10 && !DOWN)
+            {
+                UP = true;
+                LEFT = false;
+                RIGHT = false;
+            }
+            if (x < width/10 && !RIGHT)
+            {
+                UP = false;
+                LEFT = true;
+                DOWN = false;
+            }
+            if (x > width - width/10 && !LEFT)
+            {
+                UP = false;
+                DOWN = false;
+                RIGHT = true;
+            }
+            if (y > height - height/10 && !UP)
+            {
+                DOWN = true;
+                LEFT = false;
+                RIGHT = false;
+            }
+        }
+    }
+
     class KeyListener extends KeyAdapter
     {
         @Override
         public void keyPressed(KeyEvent e) {
             super.keyPressed(e);
             int key = e.getKeyCode();
-            if (key == KeyEvent.VK_W && !DOWN)
+            if ((key == KeyEvent.VK_W || key == KeyEvent.VK_UP)&& !DOWN)
             {
                 UP = true;
                 LEFT = false;
                 RIGHT = false;
             }
-            if (key == KeyEvent.VK_A && !RIGHT)
+            if ((key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT) && !RIGHT)
             {
                 UP = false;
                 LEFT = true;
                 DOWN = false;
             }
-            if (key == KeyEvent.VK_D && !LEFT)
+            if ((key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT) && !LEFT)
             {
                 UP = false;
                 DOWN = false;
                 RIGHT = true;
             }
-            if (key == KeyEvent.VK_S && !UP)
+            if ((key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN) && !UP)
             {
                 DOWN = true;
                 LEFT = false;
