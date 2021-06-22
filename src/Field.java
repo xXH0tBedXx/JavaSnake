@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Field extends JPanel implements ActionListener {
@@ -15,6 +14,7 @@ public class Field extends JPanel implements ActionListener {
     private final int pixel_size = 64;//Размер одной ячейки игрового поля
     private Image Snake_dot;//Изображение змейки
     private Image Apple;//изображение яблока
+    private Image Head;
     private int AppleX;//
     private int AppleY;// Текущие координаты яблока
     private int[] snakeX; //
@@ -42,12 +42,12 @@ public class Field extends JPanel implements ActionListener {
     }
 
     public void initGame() {
+        if (snakeSize == 0)
+            snakeSize = 1;
         for (int i = snakeSize; i > 0; i--) {
             snakeX[i] = snakeSize * pixel_size - i * pixel_size;
             snakeY[i] = 0;
         }
-//        snakeX[0] = 0;
-//        snakeY[0] = 0;
         timer = new Timer(128, this);
         timer.start();
         createApple();
@@ -59,8 +59,10 @@ public class Field extends JPanel implements ActionListener {
     }
 
     public void loadImages() {
+        ImageIcon head = new ImageIcon("head.png");
         ImageIcon apple = new ImageIcon("matryoshka.png");
         ImageIcon snake = new ImageIcon("snake.png");
+        Head = head.getImage();
         Apple = apple.getImage();
         Snake_dot = snake.getImage();
     }
@@ -71,15 +73,17 @@ public class Field extends JPanel implements ActionListener {
         if (IN_GAME)
         {
             g.drawImage(Apple, AppleX, AppleY, this);
-            for (int i = 0; i < snakeSize; i++)
+            for (int i = 1; i < snakeSize; i++)
             {
                 g.drawImage(Snake_dot, snakeX[i], snakeY[i], this);
             }
+            g.drawImage(Head, snakeX[0], snakeY[0],this);
         }
         else
         {
             setBackground(Color.BLACK);
-            g.drawString("DIED FROM CRINGE", width/2, size/2);
+            g.setColor(Color.WHITE);
+            g.drawString("DIED FROM CRINGE" , width/2, height/2);
         }
     }
 
@@ -107,7 +111,7 @@ public class Field extends JPanel implements ActionListener {
 
     public void checkCollisions()
     {
-        if (snakeX[0] < 0 || snakeX[0] > width || snakeY[0] < 0 || snakeY[0] > height)
+        if (snakeX[0] < 0 || snakeX[0] > (width - pixel_size) || snakeY[0] < 0 || snakeY[0] > (height - pixel_size))
             IN_GAME = false;
         for (int i = 1; i < snakeSize; i++)
         {
