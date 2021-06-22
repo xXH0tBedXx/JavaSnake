@@ -6,8 +6,6 @@ import java.util.Random;
 public class Field extends JPanel implements ActionListener {
     private static int width;//Ширина игрового поля
     private static int height;//Высота игрового поля
-    private static int size;//Размер игрового поля
-    private static int count_pixels;//количество ячеек в игровом поле
     private final int pixel_size = 64;//Размер одной ячейки игрового поля
     private Image Snake_dot;//Изображение змейки
     private Image Apple;//изображение яблока
@@ -17,18 +15,18 @@ public class Field extends JPanel implements ActionListener {
     private final int[] snakeX; //
     private final int[] snakeY; //массивы координат каждого отсека змейки
     private int snakeSize = new Random().nextInt(4);//количество ячеек змейки
-    private Timer timer;
     private boolean UP = false;     //
     private boolean DOWN = false;   //
     private boolean LEFT = false;   //
     private boolean RIGHT = true;  //Направления движения змейки
     private boolean IN_GAME = true;    //состояние игры (в игре/вне игры)
+    private int score = 0;//количество очков
 
     public Field(int width, int height) {
         Field.width = width;
         Field.height = height;
-        size = width * height;
-        count_pixels = size / pixel_size;
+        int size = width * height;//Размер игрового поля
+        int count_pixels = size / pixel_size;//количество ячеек в игровом поле
         snakeX = new int[count_pixels - 1];
         snakeY = new int[count_pixels - 1];
         setBackground(Color.GRAY);//Заливка фона цветом
@@ -39,6 +37,7 @@ public class Field extends JPanel implements ActionListener {
         setFocusable(true);
     }
 
+    /**Начальная инициализация игровыз данных (отрисовка первой змейки, первого яблока, запуск таймера)*/
     public void initGame() {
         if (snakeSize == 0)
             snakeSize = 1;
@@ -46,11 +45,12 @@ public class Field extends JPanel implements ActionListener {
             snakeX[i] = snakeSize * pixel_size - i * pixel_size;
             snakeY[i] = 0;
         }
-        timer = new Timer(128, this);
+        Timer timer = new Timer(128, this);
         timer.start();
         createApple();
     }
 
+    /**Генерирует новое яблоко на поле*/
     public void createApple() {
         AppleX = new Random().nextInt((width / pixel_size) - 2) * pixel_size;
         AppleY = new Random().nextInt((height / pixel_size) - 2) * pixel_size; //В некоторых разрешениях на 64 нацело не делиться, поэтому последние два варианта (первый - это граница, второй - это половина картинки) я убрал
@@ -59,8 +59,10 @@ public class Field extends JPanel implements ActionListener {
             if (AppleX == snakeX[i] && AppleY == snakeY[i])
                 createApple();
         }
+        score++;
     }
 
+    /**Загрузка картинок*/
     public void loadImages() {
         ImageIcon head = new ImageIcon("head.png");
         ImageIcon apple = new ImageIcon("matryoshka.png");
@@ -81,16 +83,20 @@ public class Field extends JPanel implements ActionListener {
                 g.drawImage(Snake_dot, snakeX[i], snakeY[i], this);
             }
             g.drawImage(Head, snakeX[0], snakeY[0],this);
+            g.setFont(new Font("Comic Sans", Font.ITALIC, width/45));
+            g.setColor(Color.RED);
+            g.drawString("Score: " + score , 0, 45);
         }
         else
         {
             setBackground(Color.BLACK);
-            g.setFont(new Font("Comic Sans", 1, width/35));
+            g.setFont(new Font("Comic Sans", Font.ITALIC, width/35));
             g.setColor(Color.WHITE);
             g.drawString("DIED FROM CRINGE" , width/3, height/2);
         }
     }
 
+    /**Меняет координаты змейки*/
     public void move() {
         for (int i = snakeSize; i > 0; i--) {
             snakeX[i] = snakeX[i - 1];
@@ -106,6 +112,7 @@ public class Field extends JPanel implements ActionListener {
             snakeX[0] += pixel_size;
     }
 
+    /**Проверка, схвачено ли яблоко*/
     public void checkApple() {
         if (snakeX[0] == AppleX && snakeY[0] == AppleY) {
             snakeSize++;
@@ -113,6 +120,7 @@ public class Field extends JPanel implements ActionListener {
         }
     }
 
+    /**проверка на наличие столкновения с собой либо с границей экрана0*/
     public void checkCollisions()
     {
         if (snakeX[0] < 0 || snakeX[0] > (width - pixel_size) || snakeY[0] < 0 || snakeY[0] > (height - pixel_size))
@@ -120,9 +128,13 @@ public class Field extends JPanel implements ActionListener {
         for (int i = 1; i < snakeSize; i++)
         {
             if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i])
+            {
                 IN_GAME = false;
+                break;
+            }
         }
     }
+
     @Override
     public void actionPerformed(ActionEvent e)
     {
