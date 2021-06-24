@@ -64,9 +64,9 @@ public class Field extends JPanel implements ActionListener {
 
     /**Загрузка картинок*/
     public void loadImages() {
-        ImageIcon head = new ImageIcon("head.png");
-        ImageIcon apple = new ImageIcon("matryoshka.png");
-        ImageIcon snake = new ImageIcon("snake.png");
+        ImageIcon head = new ImageIcon("snake.png");
+        ImageIcon apple = new ImageIcon("Qieli.png");
+        ImageIcon snake = new ImageIcon("head.png");
         Head = head.getImage();
         Apple = apple.getImage();
         Snake_dot = snake.getImage();
@@ -93,6 +93,8 @@ public class Field extends JPanel implements ActionListener {
             g.setFont(new Font("Comic Sans", Font.ITALIC, width/35));
             g.setColor(Color.WHITE);
             g.drawString("DIED FROM CRINGE" , width/3, height/2);
+            g.setColor(Color.RED);
+            g.drawString("Your score : " + score , width/3, height/2 + width/35);
         }
     }
 
